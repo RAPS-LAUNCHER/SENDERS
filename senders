@@ -1,15 +1,23 @@
-#!/bin/bash                                                       
+#!/bin/bash
+
 clear
 mkdir -p /data/data/com.termux/files/home/SENDERS
-echo "alias senders='cd && ./senders'" > ~/.bash_profile          
+echo "alias senders='cd && ./senders'" > ~/.bash_profile
+
 echo -e "\e[33m   ___ ___ _  _ ___  ___ ___  ___  "
 echo "  / __| __| \| |   \| __| _ \/ __| "
 echo "  \__ \ _|| .  | |) | _||   /\__ \ "
-echo -e "  |___/___|_|\_|___/|___|_|_\|___/ \e[0m"                echo -e "\e[31m                          TRABBIT  \e[0m"          echo "                                   "
-sleep 0.5                                                         
-# Vérifier si l'utilisateur a installé l'outil 'http-server'      if ! command -v http-server &> /dev/null; then
-    echo -e "\e[33mL'outil 'http-server' n'est pas installé. Installation en cours...\e[0m"                                             if [ -x "$(command -v apt)" ]; then
-        apt update                                                        apt install -y nodejs
+echo -e "  |___/___|_|\_|___/|___|_|_\|___/ \e[0m"
+echo -e "\e[31m                          TRABBIT  \e[0m"
+echo "                                   "
+sleep 0.5
+
+# Vérifier si l'utilisateur a installé l'outil 'http-server'
+if ! command -v http-server &> /dev/null; then
+    echo -e "\e[33mL'outil 'http-server' n'est pas installé. Installation en cours...\e[0m"
+    if [ -x "$(command -v apt)" ]; then
+        apt update
+        apt install -y nodejs
     elif [ -x "$(command -v yum)" ]; then
         yum install -y nodejs
     fi
@@ -21,7 +29,7 @@ if [ $# -eq 0 ]; then
     echo "Utilisation : senders [OPTIONS] [IP]"
     echo "Options :"
     echo "  -t IP       Envoyer le fichier à l'adresse IP spécifiée ( senders [OPTION] [IP] / senders -t 192.169.10.2 )."
-    echo "  -m          M'envoyer le fichier à moi-même.( senders [OPTION] / senders -m )"
+    echo "  -m          M'envoyer le fichier à moi-même ( senders [OPTION] / senders -m )."
     exit 1
 fi
 
