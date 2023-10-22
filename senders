@@ -1,0 +1,88 @@
+#!/bin/bash                                                       
+clear
+mkdir -p /data/data/com.termux/files/home/SENDERS
+echo "alias senders='cd && ./senders'" > ~/.bash_profile          
+echo -e "\e[33m   ___ ___ _  _ ___  ___ ___  ___  "
+echo "  / __| __| \| |   \| __| _ \/ __| "
+echo "  \__ \ _|| .  | |) | _||   /\__ \ "
+echo -e "  |___/___|_|\_|___/|___|_|_\|___/ \e[0m"                echo -e "\e[31m                          TRABBIT  \e[0m"          echo "                                   "
+sleep 0.5                                                         
+# Vérifier si l'utilisateur a installé l'outil 'http-server'      if ! command -v http-server &> /dev/null; then
+    echo -e "\e[33mL'outil 'http-server' n'est pas installé. Installation en cours...\e[0m"                                             if [ -x "$(command -v apt)" ]; then
+        apt update                                                        apt install -y nodejs
+    elif [ -x "$(command -v yum)" ]; then
+        yum install -y nodejs
+    fi
+    npm install -g http-server
+fi
+
+# Analyser les arguments de la ligne de commande
+if [ $# -eq 0 ]; then
+    echo "Utilisation : senders [OPTIONS] [IP]"
+    echo "Options :"
+    echo "  -t IP       Envoyer le fichier à l'adresse IP spécifiée ( senders [OPTION] [IP] / senders -t 192.169.10.2 )."
+    echo "  -m          M'envoyer le fichier à moi-même.( senders [OPTION] / senders -m )"
+    exit 1
+fi
+
+# Répertoire à partager
+read -p "Entrez le chemin du répertoire de fichiers : " share_directory
+
+# Vérifier si le répertoire existe
+if [ ! -d "$share_directory" ]; then
+    echo -e "\e[91mLe répertoire $share_directory n'existe pas.\e[0m"
+    exit 1
+fi
+
+# Démarrer le serveur HTTP
+start_server() {
+    echo -e "\e[32mDémarrage du serveur HTTP pour partager les fichiers du répertoire $share_directory...\e[0m"
+    cd "$share_directory"
+    read -p "Port : " port
+    http-server -p "$port"
+}
+
+# Envoi de fichiers à d'autres appareils
+send_to_device() {
+    local target_ip=$1
+    local file_name=$2
+    local url="http://$target_ip:8080/$file_name"
+    echo -e "\e[34mEnvoi du fichier $file_name à $target_ip...\e[0m"
+    # Ajoutez ici la logique pour envoyer le fichier à l'adresse IP cible
+    echo "Fichier envoyé avec succès."
+}
+
+# Envoi de fichiers à vous-même
+send_to_self() {
+    local file_name="$1"
+    local url="http://localhost:8080/$file_name"
+    echo "Envoi du fichier $file_name à vous-même..."
+    # Ajoutez ici la logique pour télécharger le fichier localement
+    # Par exemple, vous pouvez utiliser curl pour le téléchargement :
+    # curl -O "$url"
+    echo "Fichier téléchargé avec succès depuis $url."
+}
+
+while getopts "t:m" option; do
+    case $option in
+        t)
+            # Envoyer le fichier à l'adresse IP spécifiée (ou localhost:8080 pour vous-même)
+            target_ip="$OPTARG"
+            if [[ "$target_ip" == "localhost:8080" ]]; then
+                start_server
+            else
+                send_to_device "$target_ip"
+            fi
+            ;;
+        m)
+            # M'envoyer le fichier à moi-même
+            send_to_self
+            ;;
+        *)
+            echo "Option non valide."
+            ;;
+    esac
+done
+
+# Démarrer le serveur HTTP par défaut
+start_server
