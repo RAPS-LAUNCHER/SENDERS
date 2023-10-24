@@ -11,7 +11,7 @@ apt update && apt upgrade -y
 
 
 ```
-apt install git
+pkg install git
 ```
 
 ```
